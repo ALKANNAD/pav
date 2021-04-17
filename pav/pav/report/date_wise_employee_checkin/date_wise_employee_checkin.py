@@ -18,11 +18,11 @@ def execute(filters=None):
 			"dateonly": d[2],
 			"mintime": d[3],
 			"maxtime": d[4],
-			"delaytime": (d[5] if (d[11]<d[3]) else None) if d[11] else None,
-			"delaytime1":(d[6] if (d[11]<d[3]) and (d[12]>d[4]) else None) if d[11] else None,
+			"delaytime": get_delay5(d[3],d[4],d[5],d[6],d[11],d[12])  ,
+			"delaytime1":get_delay6(d[3],d[4],d[5],d[6],d[11],d[12])  ,
 			"delay1delay2" : get_delay(d[3],d[4],d[5],d[6],d[11],d[12])  , 
-			"earlyentry" :( d[8] if (d[11]>d[3]) else None) if d[11] else None,
-			"earlyentry1" : (d[9] if (d[11]<d[3]) and (d[12]<d[4])else None) if d[12] else None,
+			"earlyentry" : get_early8(d[3],d[4],d[8],d[9],d[11],d[12]) ,
+			"earlyentry1" : get_early9(d[3],d[4],d[8],d[9],d[11],d[12]), 
 			"early1early2" : get_early(d[3],d[4],d[8],d[9],d[11],d[12]),
 			"workinghours": d[13],
 		})
@@ -36,67 +36,67 @@ def get_columns():
 			"label": _("Employee "),
 			"fieldtype": "Link",
 			"options": "Employee",
-			"width": 150
+			"width": 120
 		},
 		{
 			"fieldname": "empname",
 			"label": _("Employee Name"),
 			"fieldtype": "Data",
-			"width": 200
+			"width": 170
 		},
 		{
 			"fieldname": "dateonly",
 			"label": _("Date"),
 			"fieldtype": "Data",
-			"width": 100
+			"width": 80
 		},
 		{
 			"fieldname": "mintime",
-			"label": _("First"),
+			"label": _("CheckIn"),
 			"fieldtype": "Data",
-			"width": 70
+			"width": 65
 		},
 		{
 			"fieldname": "maxtime",
-			"label": _("Last"),
+			"label": _("CheckOut"),
 			"fieldtype": "Data",
-			"width": 70
+			"width": 75
 		},
                 {
 			"fieldname": "delaytime",
-			"label": _("Delay -"),
+			"label": _("Late Attendance"),
 			"fieldtype": "Data",
-			"width": 70
+			"width": 120
 		},
 			        {
 			"fieldname": "delaytime1",
-			"label": _("Delay --"),
+			"label": _("Early Leaving"),
 			"fieldtype": "Data",
 			"width": 100
 		},
 		      {
 			"fieldname": "delay1delay2",
-			"label": _("Delay +d2"),
+			"label": _("Delay LE"),
 			"fieldtype": "Data",
 			"width": 70
 		},
 		 {
 			"fieldname": "earlyentry",
-			"label": _("Early +"),
+			"label": _("Early Attendance"),
 			"fieldtype": "Data",
-			"width": 70
+			"width": 120
 		 },
 		 		{
 			"fieldname": "earlyentry1",
-			"label": _("Early ++"),
+			"label": _("Late Leaving"),
 			"fieldtype": "Data",
 			"width": 100
 		},
 		{
 			"fieldname": "early1early2",
-			"label": _("Early + E2"),
+			"label": _("Early EL"),
 			"fieldtype": "Data",
-			"width": 100
+			"width": 70
 		},
 		 {
 			"fieldname": "workinghours",
@@ -117,25 +117,64 @@ def get_conditions(filters):
 
 def get_delay(d3,d4,d5,d6,d11,d12):
 	
-	if (d11<d3) and (d12>d4):
+	if (d11<=d3) and (d12>=d4):
 		return (d6+d5)
-	elif (d11<d3):
+	elif (d11<=d3):
 		return (d5)	
-	elif ((d11<d3) and (d12>d4))  :
+	elif ((d11>=d3) and (d12>=d4))  :
 		return (d6)
 	else :
 	    return None
+
+def get_delay5(d3,d4,d5,d6,d11,d12):
 	
-def get_early(d3,d4,d8,d9,d11,d12):
+	if (d3 >=d11) and (d4 <=d12):
+		return (d5)
+	elif (d3 >=d11) and (d4 >=d12):
+		return (d5)	
+	else :
+	    return None	
+
+def get_delay6(d3,d4,d5,d6,d11,d12):
 	
-	if (d11<d3) and (d12<d4):
-		return (d9)
-	elif (d11>d3):
-		return (d8)	
-	elif ((d11<d3) and (d12<d4)) and (d11>d3) :
-		return d9+d8
+	if (d3 >= d11) and (d4 <= d12):
+		return (d6)	
+	elif (d3 <=d11) and (d4 <= d12):
+		return (d6)	
+	else :
+	    return None	
+
+
+
+def get_early8(d3,d4,d8,d9,d11,d12):
+	
+	if (d11>=d3) and (d12>=d4):
+		return (d8)
+	elif ((d11>=d3) and (d12<=d4))  :
+		return (d8)
 	else :
 	    return None
+
+def get_early9(d3,d4,d8,d9,d11,d12):
+	
+	if (d11<=d3) and (d12<=d4):
+		return (d9)
+	elif ((d11>=d3) and (d12<=d4))  :
+		return (d9)
+	else :
+	    return None
+
+def get_early(d3,d4,d8,d9,d11,d12):
+	
+	if (d11>=d3) and (d12<=d4):
+		return (d9+d8)
+	elif (d11>d3):
+		return (d8)	
+	elif ((d11<=d3) and (d12<=d4))  :
+		return (d9)
+	else :
+	    return None
+
 def get_data(filters):
 	ini_list = frappe.db.sql("""SELECT em.employee as 'emponly',
 		em.employee_name as 'empname', DATE(em.time) as dateonly,
